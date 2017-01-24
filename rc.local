@@ -6,3 +6,4 @@
 
 touch /var/lock/subsys/local
 /sbin/modprobe tcp_hybla
+/sbin/modprobe tcp_bbr
