@@ -69,7 +69,7 @@ yum install -y ocserv
 cp vps/ocserv.conf vps/ocserv_new.conf
 wget https://github.com/CNMan/ocserv-cn-no-route/raw/master/cn-no-route.txt -O vps/cn-no-route.txt
 cat vps/cn-no-route.txt >> vps/ocserv_new.conf
-cp ocserv_new.conf /etc/ocserv/ocserv.conf
+cp -f vps/ocserv_new.conf /etc/ocserv/ocserv.conf
 rm -f vps/ocserv_new.conf
 mkdir ~/ocserv
 cp vps/server.tmpl ~/ocserv
