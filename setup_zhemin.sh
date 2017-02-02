@@ -54,7 +54,7 @@ rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
 yum --enablerepo=elrepo-kernel install kernel-ml -y
 sed -i 's:default=.*:default=0:g' /etc/grub.conf
-/sbin/modprobe tcp_bbr
+cp -f /etc/grub.conf /boot/grub/grub.conf
 cp -f vps/sysctl.conf /etc/sysctl.conf
 sysctl -p
 cp -f vps/rc.local /etc/rc.local
