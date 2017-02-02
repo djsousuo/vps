@@ -51,6 +51,7 @@ cp -f vps/limits.conf /etc/security/limits.conf
 ulimit -n 51200
 /sbin/modprobe tcp_hybla
 rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
 yum --enablerepo=elrepo-kernel install kernel-ml -y
 sed -i 's:default=.*:default=0:g' /etc/grub.conf
 /sbin/modprobe tcp_bbr
