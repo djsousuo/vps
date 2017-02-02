@@ -1,8 +1,0 @@
-unalias cp
-cp -f vps/limits.conf /etc/security/limits.conf
-ulimit -n 51200
-/sbin/modprobe tcp_hybla
-cp -f vps/sysctl.conf /etc/sysctl.conf
-sysctl -p
-service shadowsocks-libev restart
-cp -f vps/rc.local /etc/rc.local
