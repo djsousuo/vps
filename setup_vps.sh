@@ -1,19 +1,38 @@
+#! /bin/bash
+
+RootPasswd="ROOTPASSWD"
+UserName="vpn_user"
+UserPasswd="USERPASSWD"
+VncPasswd="VNCPASSWD"
+SsPasswd="SSPASSWD"
+VpnUser="vpn_user"
+VpnPasswd="VPNPASSWD" 
+
 yum update -y
+
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install kernel-ml -y
+sed -i 's:default=.*:default=0:g' /boot/grub/grub.conf
+
 yum groupinstall -y "X Window System"
 yum groupinstall -y "Desktop"
 yum groupinstall -y "General Purpose Desktop"
 yum groupinstall -y "Internet Browser"
 yum install -y vim gvim
-echo root:ROOTPASSWD | chpasswd
+echo "root:${ROOTPASSWD}" | chpasswd
 yum install -y git
 git clone https://github.com/zhuangzhemin/vps
 unalias cp
 unalias rm
 cp -f vps/inittab /etc/
-useradd zhemin
-echo zhemin:USERPASSWD | chpasswd
-cp -f vps/sudoers /etc/
-usermod -G wheel zhemin
+useradd ${UserName}
+echo ${UserName}:${UserPasswd} | chpasswd
+cp -f vps/sudoers vps/sudoers_temp
+sed -i "s/vpn_user/${UserName}/g" vps/sudoers_temp
+cp -f vps/sudoers_temp /etc/sudoers
+rm -f vps/sudoers_temp
+usermod -G wheel ${UserName}
 cp -f vps/resolv.conf /etc/resolv.conf
 LC_ALL=C ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | grep -v inet6 | cut -d: -f2 | awk '{print "s/my_ip/"$1"/g"}' > sed_command.txt
 cp ifcfg-eth0 ifcfg-eth0_temp
@@ -27,13 +46,16 @@ rm -f sed_command.txt
 yum install -y tigervnc-server tigervnc
 cp -f vps/iptables /etc/sysconfig/iptables
 service iptables restart
-cp -f vps/vncservers /etc/sysconfig/vncservers
-mkdir /home/zhemin/.vnc
-echo VNCPASSWD | vncpasswd -f > /home/zhemin/.vnc/passwd
-cp -f vps/xstartup /home/zhemin/.vnc
-chown -R zhemin:zhemin /home/zhemin/.vnc
-chmod 600 /home/zhemin/.vnc/passwd
-chmod 755 /home/zhemin/.vnc/xstartup
+cp -f vps/vncservers vps/vncservers_temp
+sed -i "s/vpn_user/${UserName}/g" vps/vncservers_temp
+cp -f vps/vncservers_temp /etc/sysconfig/vncservers
+rm -f vps/vncservers_temp
+mkdir /home/${UserName}/.vnc
+echo "${VncPasswd}" | vncpasswd -f > /home/${UserName}/.vnc/passwd
+cp -f vps/xstartup /home/${UserName}/.vnc
+chown -R ${UserName}:${UserName} /home/${UserName}/.vnc
+chmod 600 /home/${UserName}/.vnc/passwd
+chmod 755 /home/${UserName}/.vnc/xstartup
 service vncserver restart
 chkconfig vncserver on
 
@@ -42,27 +64,22 @@ yum install -y shadowsocks-libev
 LC_ALL=C ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | grep -v inet6 | cut -d: -f2 | awk '{print "s/server_ip/"$1"/g"}' > sed_command.txt
 cp vps/config.json vps/config_temp.json
 sed -f sed_command.txt vps/config_temp.json > vps/config_new.json
-sed -i "s/ss_password/SSPASSWD/g" vps/config_new.json
+sed -i "s/ss_password/${SsPasswd}/g" vps/config_new.json
 cp -f vps/config_new.json /etc/shadowsocks-libev/config.json
 rm -f vps/config_new.json vps/config_temp.json 
 rm -f sed_command.txt
 
 cp -f vps/limits.conf /etc/security/limits.conf
 ulimit -n 51200
-/sbin/modprobe tcp_hybla
-rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
-yum --enablerepo=elrepo-kernel install kernel-ml -y
-sed -i 's:default=.*:default=0:g' /etc/grub.conf
-cp -f /etc/grub.conf /boot/grub/grub.conf
+/sbin/modprobe tcp_bbr
 cp -f vps/sysctl.conf /etc/sysctl.conf
 sysctl -p
 cp -f vps/rc.local /etc/rc.local
 service shadowsocks-libev restart
 chkconfig shadowsocks-libev on
 
-git clone https://github.com/zhuangzhemin/vim
-cp -rf vim/. ~
+git clone https://github.com/zhuangzhemin/home.git
+cp -rf home/. ~
 
 cp vps/epel-release-6-8.noarch.rpm /etc/yum.repos.d/
 rpm -ivh  /etc/yum.repos.d/epel-release-6-8.noarch.rpm 
@@ -88,8 +105,8 @@ certtool --generate-certificate --load-privkey ~/ocserv/server-key.pem --load-ca
 cp ~/ocserv/ca-cert.pem /etc/ocserv/
 cp ~/ocserv/server-cert.pem /etc/ocserv/
 cp ~/ocserv/server-key.pem /etc/ocserv/
+(echo "${VpnPasswd}"; sleep 1; echo "${VpnPasswd}") | ocpasswd -c "/etc/ocserv/ocpasswd" ${VpnUser}
 service ocserv restart
 chkconfig ocserv on
 
 shutdown -r now
-

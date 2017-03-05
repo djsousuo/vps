@@ -15,5 +15,5 @@
 # doing so through a secure tunnel.  See the "-via" option in the
 # `man vncviewer' manual page.
 
-VNCSERVERS="61:zhemin"
+VNCSERVERS="61:vpn_user"
 VNCSERVERARGS[61]="-geometry 1440x900"
