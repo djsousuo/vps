@@ -1,8 +1,0 @@
-DEVICE=eth0
-BOOTPROTO=static
-ONBOOT=yes
-IPADDR=my_ip
-GATEWAY=my_gateway
-NETMASK=255.255.254.0
-DNS1=8.8.8.8
-DNS2=8.8.4.4
