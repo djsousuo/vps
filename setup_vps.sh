@@ -430,7 +430,7 @@ _EOF_
     print_info "Set ocserv ok"
     service ocserv restart
     chkconfig ocserv on
-    #wget https://raw.githubusercontent.com/zhuangzhemin/vps/master/ocserv_setup.sh ~/ocserv_setup.sh
+    wget https://raw.githubusercontent.com/zhuangzhemin/vps/master/setup_ocserv.sh /root/
     sed -i "/-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT/a-A INPUT -p tcp -m tcp --dport ${VpnPort} -j ACCEPT" /etc/sysconfig/iptables
     sed -i "/-A OUTPUT -p udp -m udp --dport 53 -j ACCEPT/a-A OUTPUT -p udp -m udp --dport ${VpnPort} -j ACCEPT" /etc/sysconfig/iptables
     service iptables restart
