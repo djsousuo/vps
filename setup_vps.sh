@@ -94,7 +94,7 @@ function install_basic_tools(){
 
 function update_root_passwd(){
     print_info "Update password for root."
-    echo "root:${ROOTPASSWD}" | chpasswd
+    echo "root:${RootPasswd}" | chpasswd
 }
 
 function add_user(){
@@ -103,8 +103,9 @@ function add_user(){
     echo $1:$2 | chpasswd
     sed -i "/^root[ \t]\+ALL=(ALL)[ \t]\+ALL/a$1\tALL=(ALL)\tALL" /etc/sudoers
     sed -i "s/^[# \t]*\(%wheel[ \t]\+ALL=(ALL)[ \t]\+NOPASSWD:[ \t]*ALL\)/\1/" /etc/sudoers
-    usermod -G wheel ${UserName}
-    su - ${UserName} -c "cd;git https://github.com/zhuangzhemin/home;cp -rf home/. .;rm -rf home"
+    usermod -G wheel $1
+    su - $1 -c "cd;git https://github.com/zhuangzhemin/home;cp -rf home/. .;rm -rf home"
+    chsh -s /bin/zsh $1
 }
 
 function config_network(){

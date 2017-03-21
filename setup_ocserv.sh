@@ -365,7 +365,7 @@ function uninstall_ocserv(){
 #main                                                                                                            #
 #######################################################
 Script_Dir="$(cd "$(dirname $0)"; pwd)"
-Log_File="${Script_Dir}/vps_setup.log"
+Log_File="${Script_Dir}/ocserv_setup.log"
 OCSERV_CONF="/etc/ocserv/ocserv.conf"
 
 log_Start
