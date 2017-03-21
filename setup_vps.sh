@@ -310,7 +310,7 @@ _EOF_
 
 function setup_ocserv(){
     print_info "Install Open Connect Server."
-    wget https://github.com/zhuangzhemin/vps/blob/master/epel-release-6-8.noarch.rpm?raw=true /etc/yum.repos.d/
+    wget https://github.com/zhuangzhemin/vps/raw/master/epel-release-6-8.noarch.rpm -O /etc/yum.repos.d/
     rpm -ivh  /etc/yum.repos.d/epel-release-6-8.noarch.rpm 
     yum install -y ocserv
     print_info "Setup Open Connect Server."
