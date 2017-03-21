@@ -88,6 +88,7 @@ function install_basic_tools(){
     yum install -y vim gvim zsh git tmux
     git clone https://github.com/zhuangzhemin/home.git
     cp -rf home/. ~
+    rm -rf home
     chsh -s /bin/zsh
 }
 
@@ -103,6 +104,7 @@ function add_user(){
     sed -i "/^root[ \t]\+ALL=(ALL)[ \t]\+ALL/a$1\tALL=(ALL)\tALL" /etc/sudoers
     sed -i "s/^[# \t]*\(%wheel[ \t]\+ALL=(ALL)[ \t]\+NOPASSWD:[ \t]*ALL\)/\1/" /etc/sudoers
     usermod -G wheel ${UserName}
+    su - ${UserName} -c "cd;git https://github.com/zhuangzhemin/home;cp -rf home/. .;rm -rf home"
 }
 
 function config_network(){
