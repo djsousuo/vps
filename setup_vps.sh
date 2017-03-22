@@ -10,6 +10,7 @@ SsPort="8443"
 VpnUser="vpn_user"
 VpnPasswd="VPNPASSWD" 
 VpnPort="443"
+HttpPort="80"
 InstallGUI="n"
 
 #error and force-exit
@@ -87,6 +88,8 @@ function install_basic_tools(){
     print_info "Install basic tools."
     yum install -y vim gvim zsh git tmux
     git clone https://github.com/zhuangzhemin/home.git
+    unalias cp
+    unalias rm
     cp -rf home/. ~
     rm -rf home
     chsh -s /bin/zsh
@@ -371,6 +374,9 @@ _EOF_
     openssl pkcs12 -export -inkey /etc/ocserv/user-${VpnUser}-key.pem -in /etc/ocserv/user-${VpnUser}-cert.pem -name "${VpnUser}" -certfile /etc/ocserv/ca-cert.pem -caname "$caname" -out /etc/ocserv/user-${VpnUser}.p12 -passout pass:${VpnPasswd}
 #cp to ${Script_Dir}
     cp /etc/ocserv/user-${VpnUser}.p12 /root/
+    if [ -n ${HttpPort} ]; then
+        cp -f /etc/ocserv/user-${VpnUser}.p12 /usr/share/nginx/html/
+    fi
     cat << _EOF_ > /etc/ocserv/crl.tmpl
 crl_next_update = 7777 
 crl_number = 1 
@@ -439,6 +445,15 @@ _EOF_
     service iptables restart
 }
 
+function setup_nginx(){
+    print_info "Install nginx http server."
+    yum install -y nginx
+    service nginx restart
+    chkconfig nginx on
+    sed -i "/-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT/a-A INPUT -p tcp -m tcp --dport ${HttpPort} -j ACCEPT" /etc/sysconfig/iptables
+    service iptables restart
+}
+
 #######################################################
 #main                                                                                                            #
 #######################################################
@@ -480,7 +495,11 @@ fi
 if [ -n ${VpnUser} ]; then
     VpnPasswd=${VpnPasswd:-$VpnUser}
     VpnPort=${VpnPort:-443}
+    if [ -n ${HttpPort} ]; then
+        setup_nginx | tee -a ${Log_File}
+    fi
     setup_ocserv | tee -a ${Log_File}
+
 fi
 
 shutdown -r now

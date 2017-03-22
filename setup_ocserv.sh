@@ -180,7 +180,11 @@ _EOF_
 #p12
     openssl pkcs12 -export -inkey /etc/ocserv/user-${VpnUser}-key.pem -in /etc/ocserv/user-${VpnUser}-cert.pem -name "${VpnUser}" -certfile /etc/ocserv/ca-cert.pem -caname "$caname" -out /etc/ocserv/user-${VpnUser}.p12 -passout pass:${VpnPasswd}
 #cp to ${Script_Dir}
-    cp /etc/ocserv/user-${VpnUser}.p12 /root/
+    unalias cp
+    cp -f /etc/ocserv/user-${VpnUser}.p12 /root/
+    if [ -d /usr/share/nginx/html ]; then
+        cp -f /etc/ocserv/user-${VpnUser}.p12 /usr/share/nginx/html/
+    fi
     cat << _EOF_ > /etc/ocserv/crl.tmpl
 crl_next_update = 7777 
 crl_number = 1 
