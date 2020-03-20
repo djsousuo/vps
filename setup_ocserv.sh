@@ -110,13 +110,12 @@ function show_help(){
 
 function install_OpenConnect_VPN_server(){
     print_info "Install Open Connect Server."
-    wget https://github.com/zhuangzhemin/vps/raw/master/epel-release-6-8.noarch.rpm -O /etc/yum.repos.d/epel-release-6-8.noarch.rpm
-    rpm -ivh  /etc/yum.repos.d/epel-release-6-8.noarch.rpm 
+    yum install -y -q epel-release && yum clean all && yum makecache fast
     yum install -y ocserv
     clear && print_xxxx
     Default_Ask "Your VPN username?" "ocvpn" "VpnUser"
     Default_Ask "Your VPN password?" "ocvpn" "VpnPasswd"
-    Default_Ask "Your VPN port?" "443" "VpnPort"
+    Default_Ask "Your VPN port?" "1199" "VpnPort"
     make_ocserv_ca
     ca_login_clientcert
     set_ocserv_conf
@@ -182,9 +181,9 @@ _EOF_
 #cp to ${Script_Dir}
     unalias cp
     cp -f /etc/ocserv/user-${VpnUser}.p12 /root/
-    if [ -d /usr/share/nginx/html ]; then
-        cp -f /etc/ocserv/user-${VpnUser}.p12 /usr/share/nginx/html/
-    fi
+    #if [ -d /usr/share/nginx/html ]; then
+    #    cp -f /etc/ocserv/user-${VpnUser}.p12 /usr/share/nginx/html/
+    #fi
     cat << _EOF_ > /etc/ocserv/crl.tmpl
 crl_next_update = 7777 
 crl_number = 1 
@@ -227,7 +226,7 @@ function set_ocserv_conf(){
 </AnyConnectProfile>
 _EOF_
     print_info "Copying ocserv.conf file from github.com"
-    wget https://raw.githubusercontent.com/zhuangzhemin/vps/master/ocserv.conf -O /etc/ocserv/ocserv.conf
+    wget https://raw.githubusercontent.com/djsousuo/vps/master/ocserv.conf -O /etc/ocserv/ocserv.conf
     print_info "Perhaps generate DH parameters will take some time , please wait..."
     certtool --generate-dh-params --outfile /etc/ocserv/dh.pem
     (echo "${VpnPasswd}"; sleep 1; echo "${VpnPasswd}") | ocpasswd -c /etc/ocserv/ocpasswd ${VpnUser}
